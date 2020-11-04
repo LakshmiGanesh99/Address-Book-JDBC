@@ -7,13 +7,13 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AddressBookDB {
 	Contacts contactObj = null;
-	/**
-	 *UC16
-	 */
+	
 	public List<Contacts> viewAddressBook() throws DBServiceException
 	{
 		List<Contacts> contactsList = new ArrayList<>();
@@ -44,9 +44,7 @@ public class AddressBookDB {
 		System.out.println(contactsList);
 		return contactsList;
 	}
-	/**
-	 *UC17
-	 */
+	
 	public List<Contacts> viewContactsByName(String fName) throws DBServiceException
 	{
 		List<Contacts> contactsListByName = new ArrayList<>();
@@ -77,9 +75,7 @@ public class AddressBookDB {
 		System.out.println(contactsListByName);
 		return contactsListByName;
 	}
-	/**
-	 *UC17
-	 */
+	
 	public void updateContactDetails(String state,String zip,String fName) throws DBServiceException
 	{
 		String query = "update address_book set state = ? , zip = ? where first_name = ?";
@@ -107,9 +103,7 @@ public class AddressBookDB {
 								  .findFirst()
 								  .orElse(null);
 	}
-	/**
-	 *UC17
-	 */
+	
 	public boolean isAddressBookSyncedWithDB(String fName) throws DBServiceException {
 		try {
 			return viewContactsByName(fName).get(0).equals(getContactDetails(fName));
@@ -121,9 +115,7 @@ public class AddressBookDB {
 		}
 		return false;
 	}
-	/**
-	 *UC18
-	 */
+	
 	public List<Contacts> viewContactsByDateRange(LocalDate startDate , LocalDate endDate) throws DBServiceException
 	{
 		List<Contacts> contactsListByStartDate = new ArrayList<>();
@@ -154,4 +146,21 @@ public class AddressBookDB {
 		}
 		return contactsListByStartDate;
 	}
+	
+	public Map<String,Integer> countContactsByCityOrState(String column) throws DBServiceException
+	{
+		Map<String,Integer> contactsCount = new HashMap<>();
+		String query = String.format("select %s , count(%s) from address_book group by %s;" , column,column,column);
+		try(Connection con = AddressBook.getConnection()) {
+			PreparedStatement preparedStatement = con.prepareStatement(query);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while(resultSet.next())
+			{
+				contactsCount.put(resultSet.getString(1), resultSet.getInt(2));
+			}
+		}catch (Exception e) {
+			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
+		}
+		return contactsCount;
+	}	
 }
