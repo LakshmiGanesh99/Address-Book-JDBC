@@ -30,7 +30,7 @@ public class AddressBookTest {
 	@Test
 	public void givenAddressBookDB_WhenRetrieved_ShouldMatchContactsCount() throws DBServiceException{
 		contactsList = serviceObj.viewAddressBook();
-		assertEquals(6, contactsList.size());
+		assertEquals(7, contactsList.size());
 	}
 	
 	@Test
@@ -64,5 +64,13 @@ public class AddressBookTest {
 		assertEquals(1, contactsCount.get("Garhwa"), 0);
 		assertEquals(1, contactsCount.get("Aurangabad"), 0);
 		assertEquals(1, contactsCount.get("Dumka"), 0);
+	}
+	
+	@Test
+	public void givenContactData_WhenAddedToDB_ShouldSyncWithDB() throws DBServiceException {
+		serviceObj.insertNewContactToDB("Raj","Kishore","Friend_Book","Friend","68/1 Srishti Complex","Patna",
+				"Bihar","897654","8734120000","kishoreji@gmail.com","2018-08-08");
+		boolean isSynced = serviceObj.isAddressBookSyncedWithDB("Raj");
+		assertTrue(isSynced);
 	}
 }

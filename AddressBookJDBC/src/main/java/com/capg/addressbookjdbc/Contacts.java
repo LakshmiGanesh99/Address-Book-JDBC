@@ -1,7 +1,6 @@
 package com.capg.addressbookjdbc;
 
 
-
 public class Contacts {
 	private int id;
 	private String firstName;
@@ -93,6 +92,19 @@ public class Contacts {
 	}
 	
 	
+	public Contacts(String firstName, String lastName, String address_name, String addressType, String address,
+			String city, String state, String zip, String phoneNo, String email, String date) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.emailId = email;
+		this.cityName = city;
+		this.address = address;
+		this.zipCode = zip;
+		this.stateName = state;
+		this.phoneNumber = phoneNo;
+		this.addressType = addressType;
+		this.address_name = address_name;
+	}
 	@Override
 	public String toString() {
 		return "Contacts [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId=" + emailId
