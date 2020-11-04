@@ -4,13 +4,12 @@ package com.capg.addressbookjdbc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-
 
 public class AddressBookTest {
 	static AddressBookDB serviceObj;
@@ -35,4 +34,9 @@ public class AddressBookTest {
 		assertTrue(isSynced);
 	}
 	
+	@Test
+	public void givenDateRange_WhenRetrieved_ShouldMatchContactsCount() throws DBServiceException{
+		contactsList = serviceObj.viewContactsByDateRange(LocalDate.of(2018,02,01), LocalDate.now() );
+		assertEquals(3, contactsList.size());
+	}
 }

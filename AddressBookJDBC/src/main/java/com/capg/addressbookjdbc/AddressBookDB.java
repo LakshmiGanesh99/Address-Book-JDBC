@@ -1,6 +1,7 @@
 package com.capg.addressbookjdbc;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -8,16 +9,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class AddressBookDB {
 	Contacts contactObj = null;
-<<<<<<< HEAD
 	/**
 	 *UC16
 	 */
-=======
-	
->>>>>>> refs/heads/UC17
 	public List<Contacts> viewAddressBook() throws DBServiceException
 	{
 		List<Contacts> contactsList = new ArrayList<>();
@@ -43,14 +39,14 @@ public class AddressBookDB {
 			}
 		}
 		catch (Exception e) {
-<<<<<<< HEAD
-=======
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
 		System.out.println(contactsList);
 		return contactsList;
 	}
-	
+	/**
+	 *UC17
+	 */
 	public List<Contacts> viewContactsByName(String fName) throws DBServiceException
 	{
 		List<Contacts> contactsListByName = new ArrayList<>();
@@ -76,13 +72,8 @@ public class AddressBookDB {
 				contactsListByName.add(contactObj);
 			}
 		} catch (Exception e) {
->>>>>>> refs/heads/UC17
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
-<<<<<<< HEAD
-		System.out.println(contactsList);
-		return contactsList;
-=======
 		System.out.println(contactsListByName);
 		return contactsListByName;
 	}
@@ -129,6 +120,38 @@ public class AddressBookDB {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
 		return false;
->>>>>>> refs/heads/UC17
+	}
+	/**
+	 *UC18
+	 */
+	public List<Contacts> viewContactsByDateRange(LocalDate startDate , LocalDate endDate) throws DBServiceException
+	{
+		List<Contacts> contactsListByStartDate = new ArrayList<>();
+		String query = "select * from address_book where date_added between ? and  ?";
+		try(Connection con = AddressBook.getConnection()) {
+			PreparedStatement preparedStatement = con.prepareStatement(query);
+			preparedStatement.setDate(1, Date.valueOf(startDate));
+			preparedStatement.setDate(2, Date.valueOf(endDate));
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while(resultSet.next())
+			{
+				int id = resultSet.getInt(1);
+				String fisrtName = resultSet.getString(2);
+				String lastName = resultSet.getString(3);
+				String addressName = resultSet.getString(4);
+				String addressType = resultSet.getString(5);
+				String address = resultSet.getString(6);
+				String city = resultSet.getString(7);
+				String state = resultSet.getString(8);
+				String zip = resultSet.getString(9);
+				String phoneNumber = resultSet.getString(10);
+				String email = resultSet.getString(11);
+				contactObj = new Contacts(id,fisrtName,lastName,addressName,addressType,address,city,state,zip,phoneNumber,email);
+				contactsListByStartDate.add(contactObj);
+			}
+		} catch (Exception e) {
+			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
+		}
+		return contactsListByStartDate;
 	}
 }

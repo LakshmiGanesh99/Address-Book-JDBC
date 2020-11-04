@@ -1,6 +1,7 @@
 package com.capg.addressbookjdbc;
 
 
+
 public class Contacts {
 	private int id;
 	private String firstName;
@@ -163,8 +164,5 @@ public class Contacts {
 			return false;
 		return true;
 	}
-<<<<<<< HEAD
-=======
 	
->>>>>>> refs/heads/UC17
 }
