@@ -13,16 +13,14 @@ import java.util.Map;
 
 public class AddressBookDB {
 	Contacts contactObj = null;
-	
-	public List<Contacts> viewAddressBook() throws DBServiceException
-	{
+
+	public List<Contacts> viewAddressBook() throws DBServiceException {
 		List<Contacts> contactsList = new ArrayList<>();
 		String query = "select * from address_book";
-		try(Connection con = AddressBook.getConnection()) {
+		try (Connection con = AddressBook.getConnection()) {
 			Statement statement = con.createStatement();
 			ResultSet resultSet = statement.executeQuery(query);
-			while(resultSet.next())
-			{
+			while (resultSet.next()) {
 				int id = resultSet.getInt(1);
 				String fisrtName = resultSet.getString(2);
 				String lastName = resultSet.getString(3);
@@ -34,14 +32,13 @@ public class AddressBookDB {
 				String zip = resultSet.getString(9);
 				String phoneNumber = resultSet.getString(10);
 				String email = resultSet.getString(11);
-				contactObj = new Contacts(id,fisrtName,lastName,addressName,addressType,address,city,state,zip,phoneNumber,email);
+				contactObj = new Contacts(id, fisrtName, lastName, addressName, addressType, address, city, state, zip,
+						phoneNumber, email);
 				contactsList.add(contactObj);
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
-		System.out.println(contactsList);
 		return contactsList;
 	}
 	
@@ -94,7 +91,7 @@ public class AddressBookDB {
 		}catch (Exception e) {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
-	}	
+	}
 	
 	public Contacts getContactDetails(String fName) throws DBServiceException {
 		return viewAddressBook().stream()
@@ -165,18 +162,44 @@ public class AddressBookDB {
 	}
 	
 	public List<Contacts>  insertNewContactToDB(String firstName,String lastName,String address_name,String addressType,
-		String address,String city,String state,String zip,String phoneNo,String email,String date) throws DBServiceException {
-		String sql = String.format("insert into address_book (first_name,last_name,address_name,address_type,address,city,state,zip,phone_number,email,date_added)"+
-		" values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');",firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
-		try (Connection con = AddressBook.getConnection()) {
-			PreparedStatement preparedStatement = con.prepareStatement(sql);
-			int result = preparedStatement.executeUpdate();
-			if (result == 1)
-				contactObj = new Contacts(firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
-				viewAddressBook().add(contactObj);
-		}catch (Exception e) {
-			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
+			String address,String city,String state,String zip,String phoneNo,String email,String date) throws DBServiceException {
+			String sql = String.format("insert into address_book (first_name,last_name,address_name,address_type,address,city,state,zip,phone_number,email,date_added)"+
+			" values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');",firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
+			try (Connection con = AddressBook.getConnection()) {
+				PreparedStatement preparedStatement = con.prepareStatement(sql);
+				int result = preparedStatement.executeUpdate();
+				if (result == 1)
+					contactObj = new Contacts(firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
+					viewAddressBook().add(contactObj);
+			}catch (Exception e) {
+				throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
+			}
+			return viewAddressBook();
 		}
-		return viewAddressBook();
+	
+	public void addMultipleContactsToDBUsingThreads(List<Contacts> record) {
+		Map<Integer,Boolean> addStatus = new HashMap<>();
+		for(Contacts contact:record) {
+			Runnable task = ()->{
+				addStatus.put(contact.hashCode(),false);
+				try {
+					insertNewContactToDB(contact.getFirstName(),contact.getLastName(),contact.getAddress_name(),contact.getAddressType(),
+							contact.getAddress(),contact.getCityName(), contact.getStateName(), contact.getZipCode(),
+							contact.getPhoneNumber(), contact.getEmailId(),contact.getDate());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				addStatus.put(contact.hashCode(),true);
+			};
+			Thread thread=new Thread(task,contact.getFirstName());
+			thread.start();
+		}
+		while(addStatus.containsValue(false)) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
