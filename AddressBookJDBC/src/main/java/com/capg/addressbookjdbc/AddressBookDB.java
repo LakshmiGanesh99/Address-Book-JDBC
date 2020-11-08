@@ -1,9 +1,9 @@
 package com.capg.addressbookjdbc;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,14 +13,18 @@ import java.util.Map;
 
 public class AddressBookDB {
 	Contacts contactObj = null;
-
-	public List<Contacts> viewAddressBook() throws DBServiceException {
+	/**
+	 *UC16
+	 */
+	public List<Contacts> viewAddressBook() throws DBServiceException
+	{
 		List<Contacts> contactsList = new ArrayList<>();
 		String query = "select * from address_book";
-		try (Connection con = AddressBook.getConnection()) {
+		try(Connection con = AddressBook.getConnection()) {
 			Statement statement = con.createStatement();
 			ResultSet resultSet = statement.executeQuery(query);
-			while (resultSet.next()) {
+			while(resultSet.next())
+			{
 				int id = resultSet.getInt(1);
 				String fisrtName = resultSet.getString(2);
 				String lastName = resultSet.getString(3);
@@ -32,16 +36,18 @@ public class AddressBookDB {
 				String zip = resultSet.getString(9);
 				String phoneNumber = resultSet.getString(10);
 				String email = resultSet.getString(11);
-				contactObj = new Contacts(id, fisrtName, lastName, addressName, addressType, address, city, state, zip,
-						phoneNumber, email);
+				contactObj = new Contacts(id,fisrtName,lastName,addressName,addressType,address,city,state,zip,phoneNumber,email);
 				contactsList.add(contactObj);
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
 		return contactsList;
 	}
-	
+	/**
+	 *UC17
+	 */
 	public List<Contacts> viewContactsByName(String fName) throws DBServiceException
 	{
 		List<Contacts> contactsListByName = new ArrayList<>();
@@ -72,7 +78,9 @@ public class AddressBookDB {
 		System.out.println(contactsListByName);
 		return contactsListByName;
 	}
-	
+	/**
+	 *UC17
+	 */
 	public void updateContactDetails(String state,String zip,String fName) throws DBServiceException
 	{
 		String query = "update address_book set state = ? , zip = ? where first_name = ?";
@@ -91,7 +99,7 @@ public class AddressBookDB {
 		}catch (Exception e) {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
-	}
+	}	
 	
 	public Contacts getContactDetails(String fName) throws DBServiceException {
 		return viewAddressBook().stream()
@@ -100,7 +108,9 @@ public class AddressBookDB {
 								  .findFirst()
 								  .orElse(null);
 	}
-	
+	/**
+	 *UC17
+	 */
 	public boolean isAddressBookSyncedWithDB(String fName) throws DBServiceException {
 		try {
 			return viewContactsByName(fName).get(0).equals(getContactDetails(fName));
@@ -108,11 +118,14 @@ public class AddressBookDB {
 		catch (IndexOutOfBoundsException e) {
 		} 
 		catch (Exception e) {
+			e.printStackTrace();
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
 		return false;
 	}
-	
+	/**
+	 *UC18
+	 */
 	public List<Contacts> viewContactsByDateRange(LocalDate startDate , LocalDate endDate) throws DBServiceException
 	{
 		List<Contacts> contactsListByStartDate = new ArrayList<>();
@@ -143,7 +156,9 @@ public class AddressBookDB {
 		}
 		return contactsListByStartDate;
 	}
-	
+	/**
+	 *UC19
+	 */
 	public Map<String,Integer> countContactsByCityOrState(String column) throws DBServiceException
 	{
 		Map<String,Integer> contactsCount = new HashMap<>();
@@ -160,23 +175,48 @@ public class AddressBookDB {
 		}
 		return contactsCount;
 	}
-	
+	/**
+	 * UC20
+	 */
 	public List<Contacts>  insertNewContactToDB(String firstName,String lastName,String address_name,String addressType,
-			String address,String city,String state,String zip,String phoneNo,String email,String date) throws DBServiceException {
-			String sql = String.format("insert into address_book (first_name,last_name,address_name,address_type,address,city,state,zip,phone_number,email,date_added)"+
-			" values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');",firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
-			try (Connection con = AddressBook.getConnection()) {
-				PreparedStatement preparedStatement = con.prepareStatement(sql);
-				int result = preparedStatement.executeUpdate();
-				if (result == 1)
-					contactObj = new Contacts(firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
-					viewAddressBook().add(contactObj);
-			}catch (Exception e) {
+												String address,String city,String state,String zip,String phoneNo,
+												String email,String date) throws DBServiceException {
+		int id = -1;
+		Connection con = null;
+		try {
+			con = AddressBook.getConnection();
+			con.setAutoCommit(false);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		String sql = String.format("insert into address_book (first_name,last_name,address_name,address_type,address,city,state,"
+									+ "zip,phone_number,email,date_added)"+
+									" values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');",firstName,lastName,address_name,addressType,
+									address,city,state,zip,phoneNo,email,date);
+		try (Statement statement = con.createStatement()) {
+			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
+			if (result == 1) {
+				ResultSet resultSet = statement.getGeneratedKeys();
+				if(resultSet.next()) 
+					id =  resultSet.getInt(1);
+				contactObj = new Contacts(firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
+				viewAddressBook().add(contactObj);
+				con.commit();
+			}
+		}catch (SQLException exception) {
+			exception.printStackTrace();
+			try {
+				con.rollback();
+				return viewAddressBook();
+			} catch (SQLException ex) {
 				throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 			}
-			return viewAddressBook();
 		}
-	
+		return viewAddressBook();
+	}
+	/**
+	 * UC21 Multithreading
+	 */
 	public void addMultipleContactsToDBUsingThreads(List<Contacts> record) {
 		Map<Integer,Boolean> addStatus = new HashMap<>();
 		for(Contacts contact:record) {

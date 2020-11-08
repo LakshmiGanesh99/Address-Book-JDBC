@@ -1,112 +1,88 @@
 package com.capg.addressbookjdbc;
-
 public class Contacts {
 	private int id;
 	private String firstName;
-	private String lastName, emailId, cityName;
-	private String address, zipCode, stateName;
+	private String lastName,emailId,cityName;
+	private String address,zipCode,stateName;
 	private String phoneNumber;
-	private String addressType, address_name;
+	private String addressType,address_name;
 	private String date;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getEmailId() {
-		return emailId;
-	}
-
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
-	}
-
-	public String getCityName() {
-		return cityName;
-	}
-
-	public void setCityName(String cityName) {
-		this.cityName = cityName;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getZipCode() {
-		return zipCode;
-	}
-
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
-
-	public String getStateName() {
-		return stateName;
-	}
-
-	public void setStateName(String stateName) {
-		this.stateName = stateName;
-	}
-
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
-
-	public String getAddressType() {
-		return addressType;
-	}
-
+	
 	public String getDate() {
 		return date;
 	}
-
 	public void setDate(String date) {
 		this.date = date;
 	}
-
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getEmailId() {
+		return emailId;
+	}
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+	public String getCityName() {
+		return cityName;
+	}
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getZipCode() {
+		return zipCode;
+	}
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+	public String getStateName() {
+		return stateName;
+	}
+	public void setStateName(String stateName) {
+		this.stateName = stateName;
+	}
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	public String getAddressType() {
+		return addressType;
+	}
 	public void setAddressType(String addressType) {
 		this.addressType = addressType;
 	}
-
 	public String getAddress_name() {
 		return address_name;
 	}
-
 	public void setAddress_name(String address_name) {
 		this.address_name = address_name;
 	}
-
-	public Contacts(int id, String firstName, String lastName, String address_name, String addressType, String address,
-			String cityName, String stateName, String zipCode, String phoneNumber, String emailId) {
+	
+	public Contacts(int id,String firstName,String lastName,String address_name,String addressType,
+					String address,String cityName,String stateName,String zipCode,String phoneNumber, String emailId) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -120,7 +96,8 @@ public class Contacts {
 		this.addressType = addressType;
 		this.address_name = address_name;
 	}
-
+	
+	
 	public Contacts(String firstName, String lastName, String address_name, String addressType, String address,
 			String city, String state, String zip, String phoneNo, String email, String date) {
 		this.firstName = firstName;
@@ -133,16 +110,17 @@ public class Contacts {
 		this.phoneNumber = phoneNo;
 		this.addressType = addressType;
 		this.address_name = address_name;
+		this.date = date;
 	}
-
+	
+	
 	@Override
 	public String toString() {
 		return "Contacts [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId=" + emailId
 				+ ", cityName=" + cityName + ", address=" + address + ", zipCode=" + zipCode + ", stateName="
 				+ stateName + ", phoneNumber=" + phoneNumber + ", addressType=" + addressType + ", address_name="
-				+ address_name + "]";
+				+ address_name + ", date=" + date + "]";
 	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -206,4 +184,5 @@ public class Contacts {
 			return false;
 		return true;
 	}
+	
 }
