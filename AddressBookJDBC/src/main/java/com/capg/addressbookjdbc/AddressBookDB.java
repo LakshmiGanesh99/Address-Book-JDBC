@@ -1,4 +1,5 @@
 package com.capg.addressbookjdbc;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,18 +14,17 @@ import java.util.Map;
 
 public class AddressBookDB {
 	Contacts contactObj = null;
+
 	/**
-	 *UC16
+	 * UC16
 	 */
-	public List<Contacts> viewAddressBook() throws DBServiceException
-	{
+	public List<Contacts> viewAddressBook() throws DBServiceException {
 		List<Contacts> contactsList = new ArrayList<>();
 		String query = "select * from address_book";
-		try(Connection con = AddressBook.getConnection()) {
+		try (Connection con = AddressBook.getConnection()) {
 			Statement statement = con.createStatement();
 			ResultSet resultSet = statement.executeQuery(query);
-			while(resultSet.next())
-			{
+			while (resultSet.next()) {
 				int id = resultSet.getInt(1);
 				String fisrtName = resultSet.getString(2);
 				String lastName = resultSet.getString(3);
@@ -36,28 +36,27 @@ public class AddressBookDB {
 				String zip = resultSet.getString(9);
 				String phoneNumber = resultSet.getString(10);
 				String email = resultSet.getString(11);
-				contactObj = new Contacts(id,fisrtName,lastName,addressName,addressType,address,city,state,zip,phoneNumber,email);
+				contactObj = new Contacts(id, fisrtName, lastName, addressName, addressType, address, city, state, zip,
+						phoneNumber, email);
 				contactsList.add(contactObj);
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
 		return contactsList;
 	}
+
 	/**
-	 *UC17
+	 * UC17
 	 */
-	public List<Contacts> viewContactsByName(String fName) throws DBServiceException
-	{
+	public List<Contacts> viewContactsByName(String fName) throws DBServiceException {
 		List<Contacts> contactsListByName = new ArrayList<>();
 		String query = "select * from address_book where first_name = ?";
-		try(Connection con = AddressBook.getConnection()) {
+		try (Connection con = AddressBook.getConnection()) {
 			PreparedStatement preparedStatement = con.prepareStatement(query);
-			preparedStatement.setString(1, fName );
+			preparedStatement.setString(1, fName);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			if(resultSet.next())
-			{
+			if (resultSet.next()) {
 				int id = resultSet.getInt(1);
 				String fisrtName = resultSet.getString(2);
 				String lastName = resultSet.getString(3);
@@ -69,7 +68,8 @@ public class AddressBookDB {
 				String zip = resultSet.getString(9);
 				String phoneNumber = resultSet.getString(10);
 				String email = resultSet.getString(11);
-				contactObj = new Contacts(id,fisrtName,lastName,addressName,addressType,address,city,state,zip,phoneNumber,email);
+				contactObj = new Contacts(id, fisrtName, lastName, addressName, addressType, address, city, state, zip,
+						phoneNumber, email);
 				contactsListByName.add(contactObj);
 			}
 		} catch (Exception e) {
@@ -78,65 +78,58 @@ public class AddressBookDB {
 		System.out.println(contactsListByName);
 		return contactsListByName;
 	}
+
 	/**
-	 *UC17
+	 * UC17
 	 */
-	public void updateContactDetails(String state,String zip,String fName) throws DBServiceException
-	{
+	public void updateContactDetails(String state, String zip, String fName) throws DBServiceException {
 		String query = "update address_book set state = ? , zip = ? where first_name = ?";
-		try(Connection con = AddressBook.getConnection()) {
+		try (Connection con = AddressBook.getConnection()) {
 			PreparedStatement preparedStatement = con.prepareStatement(query);
 			preparedStatement.setString(1, state);
 			preparedStatement.setString(2, zip);
 			preparedStatement.setString(3, fName);
 			int result = preparedStatement.executeUpdate();
-			contactObj = getContactDetails( fName);
-			if(result > 0 && contactObj != null)
-			{
+			contactObj = getContactDetails(fName);
+			if (result > 0 && contactObj != null) {
 				contactObj.setStateName(state);
 				contactObj.setZipCode(zip);
-			}	
-		}catch (Exception e) {
+			}
+		} catch (Exception e) {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
-	}	
-	
-	public Contacts getContactDetails(String fName) throws DBServiceException {
-		return viewAddressBook().stream()
-								  .filter(e -> e.getFirstName()
-								  .equals(fName))
-								  .findFirst()
-								  .orElse(null);
 	}
+
+	public Contacts getContactDetails(String fName) throws DBServiceException {
+		return viewAddressBook().stream().filter(e -> e.getFirstName().equals(fName)).findFirst().orElse(null);
+	}
+
 	/**
-	 *UC17
+	 * UC17
 	 */
 	public boolean isAddressBookSyncedWithDB(String fName) throws DBServiceException {
 		try {
 			return viewContactsByName(fName).get(0).equals(getContactDetails(fName));
-		} 
-		catch (IndexOutOfBoundsException e) {
-		} 
-		catch (Exception e) {
+		} catch (IndexOutOfBoundsException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
 		return false;
 	}
+
 	/**
-	 *UC18
+	 * UC18
 	 */
-	public List<Contacts> viewContactsByDateRange(LocalDate startDate , LocalDate endDate) throws DBServiceException
-	{
+	public List<Contacts> viewContactsByDateRange(LocalDate startDate, LocalDate endDate) throws DBServiceException {
 		List<Contacts> contactsListByStartDate = new ArrayList<>();
 		String query = "select * from address_book where date_added between ? and  ?";
-		try(Connection con = AddressBook.getConnection()) {
+		try (Connection con = AddressBook.getConnection()) {
 			PreparedStatement preparedStatement = con.prepareStatement(query);
 			preparedStatement.setDate(1, Date.valueOf(startDate));
 			preparedStatement.setDate(2, Date.valueOf(endDate));
 			ResultSet resultSet = preparedStatement.executeQuery();
-			while(resultSet.next())
-			{
+			while (resultSet.next()) {
 				int id = resultSet.getInt(1);
 				String fisrtName = resultSet.getString(2);
 				String lastName = resultSet.getString(3);
@@ -148,7 +141,8 @@ public class AddressBookDB {
 				String zip = resultSet.getString(9);
 				String phoneNumber = resultSet.getString(10);
 				String email = resultSet.getString(11);
-				contactObj = new Contacts(id,fisrtName,lastName,addressName,addressType,address,city,state,zip,phoneNumber,email);
+				contactObj = new Contacts(id, fisrtName, lastName, addressName, addressType, address, city, state, zip,
+						phoneNumber, email);
 				contactsListByStartDate.add(contactObj);
 			}
 		} catch (Exception e) {
@@ -156,54 +150,56 @@ public class AddressBookDB {
 		}
 		return contactsListByStartDate;
 	}
+
 	/**
-	 *UC19
+	 * UC19
 	 */
-	public Map<String,Integer> countContactsByCityOrState(String column) throws DBServiceException
-	{
-		Map<String,Integer> contactsCount = new HashMap<>();
-		String query = String.format("select %s , count(%s) from address_book group by %s;" , column,column,column);
-		try(Connection con = AddressBook.getConnection()) {
+	public Map<String, Integer> countContactsByCityOrState(String column) throws DBServiceException {
+		Map<String, Integer> contactsCount = new HashMap<>();
+		String query = String.format("select %s , count(%s) from address_book group by %s;", column, column, column);
+		try (Connection con = AddressBook.getConnection()) {
 			PreparedStatement preparedStatement = con.prepareStatement(query);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			while(resultSet.next())
-			{
+			while (resultSet.next()) {
 				contactsCount.put(resultSet.getString(1), resultSet.getInt(2));
 			}
-		}catch (Exception e) {
+		} catch (Exception e) {
 			throw new DBServiceException("SQL Exception", DBServiceExceptionType.SQL_EXCEPTION);
 		}
 		return contactsCount;
 	}
+
 	/**
 	 * UC20
 	 */
-	public List<Contacts>  insertNewContactToDB(String firstName,String lastName,String address_name,String addressType,
-												String address,String city,String state,String zip,String phoneNo,
-												String email,String date) throws DBServiceException {
+	public List<Contacts> insertNewContactToDB(String firstName, String lastName, String address_name,
+			String addressType, String address, String city, String state, String zip, String phoneNo, String email,
+			String date) throws DBServiceException {
 		int id = -1;
 		Connection con = null;
 		try {
 			con = AddressBook.getConnection();
 			con.setAutoCommit(false);
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		String sql = String.format("insert into address_book (first_name,last_name,address_name,address_type,address,city,state,"
-									+ "zip,phone_number,email,date_added)"+
-									" values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');",firstName,lastName,address_name,addressType,
-									address,city,state,zip,phoneNo,email,date);
+		String sql = String.format(
+				"insert into address_book (first_name,last_name,address_name,address_type,address,city,state,"
+						+ "zip,phone_number,email,date_added)"
+						+ " values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');",
+				firstName, lastName, address_name, addressType, address, city, state, zip, phoneNo, email, date);
 		try (Statement statement = con.createStatement()) {
-			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
+			int result = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
 			if (result == 1) {
 				ResultSet resultSet = statement.getGeneratedKeys();
-				if(resultSet.next()) 
-					id =  resultSet.getInt(1);
-				contactObj = new Contacts(firstName,lastName,address_name,addressType,address,city,state,zip,phoneNo,email,date);
+				if (resultSet.next())
+					id = resultSet.getInt(1);
+				contactObj = new Contacts(firstName, lastName, address_name, addressType, address, city, state, zip,
+						phoneNo, email, date);
 				viewAddressBook().add(contactObj);
 				con.commit();
 			}
-		}catch (SQLException exception) {
+		} catch (SQLException exception) {
 			exception.printStackTrace();
 			try {
 				con.rollback();
@@ -214,32 +210,44 @@ public class AddressBookDB {
 		}
 		return viewAddressBook();
 	}
+
 	/**
 	 * UC21 Multithreading
 	 */
 	public void addMultipleContactsToDBUsingThreads(List<Contacts> record) {
-		Map<Integer,Boolean> addStatus = new HashMap<>();
-		for(Contacts contact:record) {
-			Runnable task = ()->{
-				addStatus.put(contact.hashCode(),false);
+		Map<Integer, Boolean> addStatus = new HashMap<>();
+		for (Contacts contact : record) {
+			Runnable task = () -> {
+				addStatus.put(contact.hashCode(), false);
 				try {
-					insertNewContactToDB(contact.getFirstName(),contact.getLastName(),contact.getAddress_name(),contact.getAddressType(),
-							contact.getAddress(),contact.getCityName(), contact.getStateName(), contact.getZipCode(),
-							contact.getPhoneNumber(), contact.getEmailId(),contact.getDate());
+					insertNewContactToDB(contact.getFirstName(), contact.getLastName(), contact.getAddress_name(),
+							contact.getAddressType(), contact.getAddress(), contact.getCityName(),
+							contact.getStateName(), contact.getZipCode(), contact.getPhoneNumber(),
+							contact.getEmailId(), contact.getDate());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				addStatus.put(contact.hashCode(),true);
+				addStatus.put(contact.hashCode(), true);
 			};
-			Thread thread=new Thread(task,contact.getFirstName());
+			Thread thread = new Thread(task, contact.getFirstName());
 			thread.start();
 		}
-		while(addStatus.containsValue(false)) {
+		while (addStatus.containsValue(false)) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	// UC22 RestAPI
+	public void addNewContactsUsingRestAPI(List<Contacts> contaList) throws DBServiceException {
+		for (Contacts c : contaList) {
+			insertNewContactToDB(c.getFirstName(), c.getLastName(), c.getAddress_name(), c.getAddressType(),c.getAddress(), c.getCityName(), c.getStateName(), c.getZipCode(), c.getPhoneNumber(),c.getEmailId(), c.getDate());
+		}
+		}
+		public int entryCount() throws DBServiceException {
+			return viewAddressBook().size();
 	}
 }
